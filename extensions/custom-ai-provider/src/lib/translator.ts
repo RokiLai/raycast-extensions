@@ -53,9 +53,7 @@ export function parseBilingualTranslation(translatedText: string): {
   const normalized = translatedText.trim();
 
   // 用正则匹配 Chinese: 到 English: 之间的内容，作为中文翻译结果。
-  const chineseMatch = normalized.match(
-    /Chinese:\s*([\s\S]*?)(?:\n\s*English:\s*|$)/i,
-  );
+  const chineseMatch = normalized.match(/Chinese:\s*([\s\S]*?)(?:\n\s*English:\s*|$)/i);
 
   // 用正则匹配 English: 后面的所有内容，作为英文翻译结果。
   const englishMatch = normalized.match(/English:\s*([\s\S]*?)$/i);

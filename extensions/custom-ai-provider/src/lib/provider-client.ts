@@ -15,12 +15,7 @@ function parseExtraHeaders(raw?: string): Record<string, string> {
   // 如果是 JSON 格式，就直接解析并把所有值强制转成字符串。
   if (value.startsWith("{")) {
     const parsed = JSON.parse(value) as Record<string, string>;
-    return Object.fromEntries(
-      Object.entries(parsed).map(([key, headerValue]) => [
-        key,
-        String(headerValue),
-      ]),
-    );
+    return Object.fromEntries(Object.entries(parsed).map(([key, headerValue]) => [key, String(headerValue)]));
   }
 
   // 如果不是 JSON，就按“每行一个请求头”的方式解析。
@@ -108,9 +103,7 @@ function formatProviderError(raw: string): string {
 
   // 如果不是 JSON，就把多余换行压成一行，并在太长时做截断。
   const singleLine = trimmed.replace(/\s+/g, " ");
-  return singleLine.length > 240
-    ? `${singleLine.slice(0, 239)}...`
-    : singleLine;
+  return singleLine.length > 240 ? `${singleLine.slice(0, 239)}...` : singleLine;
 }
 
 // 这是统一的“向第三方 AI 发聊天请求”的函数。
@@ -123,14 +116,7 @@ export async function chatWithProvider(params: {
   messages?: ChatMessage[];
   signal?: AbortSignal;
 }): Promise<ChatResponse> {
-  const {
-    provider,
-    model,
-    systemPrompt,
-    userPrompt,
-    messages: incomingMessages,
-    signal,
-  } = params;
+  const { provider, model, systemPrompt, userPrompt, messages: incomingMessages, signal } = params;
 
   // 调用方既可以直接传完整消息数组，也可以只传 systemPrompt + userPrompt。
   // 如果没有传 messages，这里就帮它拼出最基本的一轮对话结构。
@@ -138,9 +124,7 @@ export async function chatWithProvider(params: {
     incomingMessages && incomingMessages.length > 0
       ? incomingMessages
       : [
-          ...(systemPrompt?.trim()
-            ? [{ role: "system" as const, content: systemPrompt.trim() }]
-            : []),
+          ...(systemPrompt?.trim() ? [{ role: "system" as const, content: systemPrompt.trim() }] : []),
           { role: "user", content: userPrompt.trim() },
         ];
 
@@ -154,12 +138,8 @@ export async function chatWithProvider(params: {
 
   // 这里把“主动取消请求”和“超时自动取消”合并成一个 signal。
   // 这样 fetch 只需要监听一个中断源。
-  const timeoutSignal = AbortSignal.timeout(
-    parseRequestTimeoutMs(provider.requestTimeoutSeconds),
-  );
-  const requestSignal = signal
-    ? AbortSignal.any([signal, timeoutSignal])
-    : timeoutSignal;
+  const timeoutSignal = AbortSignal.timeout(parseRequestTimeoutMs(provider.requestTimeoutSeconds));
+  const requestSignal = signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal;
 
   let response: Response;
   try {
@@ -178,9 +158,7 @@ export async function chatWithProvider(params: {
   } catch (error) {
     // fetch 抛出的不同错误类型，在这里统一翻译成更容易理解的提示。
     if (error instanceof Error && error.name === "TimeoutError") {
-      throw new Error(
-        "The request timed out. Increase Request Timeout or try again.",
-      );
+      throw new Error("The request timed out. Increase Request Timeout or try again.");
     }
 
     if (error instanceof Error && error.name === "AbortError") {
@@ -195,9 +173,7 @@ export async function chatWithProvider(params: {
 
   // HTTP 状态码不是 2xx 时，拼出更清晰的错误信息抛给上层。
   if (!response.ok) {
-    throw new Error(
-      `Provider request failed (${response.status}): ${formatProviderError(raw)}`,
-    );
+    throw new Error(`Provider request failed (${response.status}): ${formatProviderError(raw)}`);
   }
 
   // 这里按 OpenAI 风格响应结构读取 choices[0].message.content。

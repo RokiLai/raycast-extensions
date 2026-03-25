@@ -13,11 +13,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import { chatWithProvider } from "./lib/provider-client";
 import { ProviderConfig } from "./lib/types";
-import {
-  buildTranslationPrompt,
-  parseBilingualTranslation,
-  TRANSLATION_SYSTEM_PROMPT,
-} from "./lib/translator";
+import { buildTranslationPrompt, parseBilingualTranslation, TRANSLATION_SYSTEM_PROMPT } from "./lib/translator";
 import { getConfiguredProvider } from "./lib/preferences";
 
 // Raycast 允许命令在启动时接收上下文。
@@ -36,8 +32,7 @@ function resolveProviderConfig(): {
     return { provider: getConfiguredProvider() };
   } catch (error) {
     return {
-      configError:
-        error instanceof Error ? error.message : "Invalid provider settings",
+      configError: error instanceof Error ? error.message : "Invalid provider settings",
     };
   }
 }
@@ -52,20 +47,11 @@ function renderTranslatorMarkdown(params: {
   lastError?: string;
   configError?: string;
 }) {
-  const {
-    provider,
-    sourceText,
-    translatedText,
-    isTranslating,
-    lastError,
-    configError,
-  } = params;
+  const { provider, sourceText, translatedText, isTranslating, lastError, configError } = params;
 
   // 没有 provider 时，优先展示配置错误；否则提示用户先去配置。
   if (!provider) {
-    return configError
-      ? `# Provider configuration error\n\n${configError}`
-      : "# Configure a provider first";
+    return configError ? `# Provider configuration error\n\n${configError}` : "# Configure a provider first";
   }
 
   // 把模型返回的文本尽量拆成中英双语，便于分别展示和复制。
@@ -74,9 +60,7 @@ function renderTranslatorMarkdown(params: {
 
   // 初始状态下，如果既没有输入也没有结果，就展示最基础的操作提示。
   if (!sourceText.trim() && !translatedText.trim()) {
-    sections.push(
-      "Type text in the search bar above and press Enter to translate.",
-    );
+    sections.push("Type text in the search bar above and press Enter to translate.");
   } else {
     // 如果能成功拆出中英两段，就分区显示；否则按单段翻译结果展示。
     if (chinese || english) {
@@ -102,9 +86,7 @@ function renderTranslatorMarkdown(params: {
 
 // 这是 Raycast 命令的主组件。
 // 它负责管理输入文本、请求状态、翻译结果，以及界面上的所有交互行为。
-export default function Command(
-  props: LaunchProps<{ launchContext?: TranslatorLaunchContext }>,
-) {
+export default function Command(props: LaunchProps<{ launchContext?: TranslatorLaunchContext }>) {
   // requestIdRef 用来标记“当前最新的一次请求”。
   // 如果较早发出的请求后来才返回，我们可以用它来忽略过期结果，避免界面被旧数据覆盖。
   const requestIdRef = useRef(0);
@@ -136,10 +118,7 @@ export default function Command(
   const [isTranslating, setIsTranslating] = useState(false);
 
   // 配置读取只需要在组件初始化时做一次，所以放进 useMemo。
-  const { provider: selectedProvider, configError } = useMemo(
-    () => resolveProviderConfig(),
-    [],
-  );
+  const { provider: selectedProvider, configError } = useMemo(() => resolveProviderConfig(), []);
 
   // 为了支持“单独复制中文/英文”，这里先把结果拆成两个字段。
   const { chinese, english } = parseBilingualTranslation(translatedText);
@@ -164,8 +143,7 @@ export default function Command(
       await showToast({
         style: Toast.Style.Failure,
         title: "Provider not found",
-        message:
-          "Open the extension settings and configure your provider first.",
+        message: "Open the extension settings and configure your provider first.",
       });
       return;
     }
@@ -290,11 +268,7 @@ export default function Command(
       {!selectedProvider ? (
         <List.EmptyView
           icon={Icon.Message}
-          title={
-            configError
-              ? "Provider Configuration Error"
-              : "Provider Not Configured"
-          }
+          title={configError ? "Provider Configuration Error" : "Provider Not Configured"}
           description={
             configError
               ? "Open the extension settings and fix the provider configuration."

@@ -1,10 +1,4 @@
-import {
-  LaunchType,
-  Toast,
-  getSelectedText,
-  launchCommand,
-  showToast,
-} from "@raycast/api";
+import { LaunchType, Toast, getSelectedText, launchCommand, showToast } from "@raycast/api";
 
 // 这是“翻译当前选中文本”的快捷命令。
 // 它自己不负责翻译，而是先读取用户当前选中的文本，再把内容转交给主界面命令。

@@ -1,22 +1,12 @@
 import { getPreferenceValues } from "@raycast/api";
 import { ProviderConfig } from "./types";
 
-// 这里定义的是 Raycast 设置页里会读到的原始字段类型。
-// 注意这些值一开始都是字符串，因为设置面板返回的就是文本输入结果。
-type TranslatorPreferences = {
-  providerName: string;
-  baseUrl: string;
-  apiKey: string;
-  model: string;
-  extraHeaders?: string;
-  temperature?: string;
-  requestTimeoutSeconds?: string;
-};
-
 // 这个函数负责把 Raycast 设置里的原始字符串，整理成程序内部统一使用的 ProviderConfig。
 // 如果关键字段没填，就返回 undefined，让上层界面决定如何提示用户。
 export function getConfiguredProvider(): ProviderConfig | undefined {
-  const preferences = getPreferenceValues<TranslatorPreferences>();
+  // 这里直接使用 Raycast 根据 package.json 自动生成的 Preferences 类型，
+  // 这样设置项一旦有增删改，就不会因为手写类型忘记同步而漂移。
+  const preferences = getPreferenceValues<Preferences>();
 
   // trim() 的作用是去掉首尾空格，避免用户不小心多输入空格导致校验失败。
   const providerName = preferences.providerName.trim();
